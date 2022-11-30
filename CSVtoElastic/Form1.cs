@@ -15,7 +15,7 @@ namespace CSVtoElastic
 {
     public partial class Form1 : Form
     {
-        private String CSVFileName;
+        internal String CSVFileName;
         private String dBaseFileName;
         public static SQLiteConnection dBaseConnection;
         public static SQLiteCommand sQLCommand;
@@ -42,6 +42,7 @@ namespace CSVtoElastic
             sQLiteDataAdapter.Fill(dataSet);
 
             dataGridView1.DataSource = dataSet.Tables[0];
+            DrawCheckBoxes();
             MessageBox.Show("Файл открыт");
         }
 
@@ -51,6 +52,7 @@ namespace CSVtoElastic
             sQLCommand = new SQLiteCommand();
             dBaseFileName = "sampleDB.db";
             toolStripStatusLabel2.Text = "Disconnected";
+            ElasticsearchHelper.GetESClient();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -67,6 +69,31 @@ namespace CSVtoElastic
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             dBaseConnection.Close();
+        }
+
+        private void DrawCheckBoxes()
+        {
+            List<CheckBox> checkBoxColumnToIndex = new List<CheckBox>();
+            for (int i = 0; i < Post.FieldsCount; i++)
+            {
+                var ckBox = new CheckBox();
+                checkBoxColumnToIndex.Add(ckBox);
+                //Get the column header cell bounds
+                Rectangle rect = this.dataGridView1.GetCellDisplayRectangle(i+1, -1, true);
+                checkBoxColumnToIndex[i].Size = new Size(18, 18);
+                //Change the location of the CheckBox to make it stay on the header
+                checkBoxColumnToIndex[i].Top = rect.Top+1;
+                checkBoxColumnToIndex[i].Left = rect.Left + rect.Width - checkBoxColumnToIndex[i].Width-1;
+                checkBoxColumnToIndex[i].CheckedChanged += (sender, eventArgs) => {
+                    CheckBox senderCheckbox = (CheckBox)sender; 
+                    ckBox_CheckedChanged(i);
+                };
+                  this.dataGridView1.Controls.Add(checkBoxColumnToIndex[i]);
+            }
+        }
+        private void ckBox_CheckedChanged(int checkBoxIndex)
+        {
+            Post.FieldsToIndex[checkBoxIndex] = !Post.FieldsToIndex[checkBoxIndex];
         }
     }
 }

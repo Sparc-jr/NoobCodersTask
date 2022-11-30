@@ -11,8 +11,10 @@ namespace CSVtoElastic
 
         //private int _id;
         private int fieldsCount;
+        private List<int> fieldsToIndex;
         private List<object> fields;
 
+        public static List<bool> FieldsToIndex;
         public static int FieldsCount;
         public static List<string> namesOfFields;
         public static List<Type> typesOfFields;
@@ -24,7 +26,7 @@ namespace CSVtoElastic
         public Post()
         {
             //PostID = Interlocked.Increment(ref _id);
-            Fields = new List<object>();
+            Fields = new List<object>();            
         }
     }
 }

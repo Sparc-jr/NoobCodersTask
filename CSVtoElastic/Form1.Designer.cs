@@ -40,6 +40,7 @@
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -57,7 +58,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(12, 50);
+            this.button2.Location = new System.Drawing.Point(133, 10);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(112, 34);
             this.button2.TabIndex = 1;
@@ -140,11 +141,21 @@
             this.button3.Text = "Искать";
             this.button3.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 59);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(372, 25);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Отметьте столбцы для индексации и поиска";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1223, 1262);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dataGridView2);
@@ -176,9 +187,10 @@
         private ToolStripStatusLabel toolStripStatusLabel2;
         private OpenFileDialog openFileDialog1;
         private SaveFileDialog saveFileDialog1;
-        private DataGridView dataGridView1;
+        public DataGridView dataGridView1;
         private DataGridView dataGridView2;
         private Label label1;
         private Button button3;
+        private Label label2;
     }
 }
