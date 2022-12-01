@@ -12,7 +12,7 @@ namespace CSVtoElastic
             ConnectionSettings connectionSettings;
             ElasticClient elasticClient;
             CloudConnectionPool connectionPool;
-            
+
             //Provide your ES cluster addresses
             //var nodes = new Uri[] { new Uri("http://478a6a642d54.ngrok.io/") };
             connectionPool = new CloudConnectionPool(cloudID, new ApiKeyAuthenticationCredentials("6ySZlK9YwKAscofZcP7JYqdU"));
@@ -21,34 +21,21 @@ namespace CSVtoElastic
             return elasticClient;
         }
 
-        public static void CreateDocument(ElasticClient elasticClient, string indexName, List<List<string>> document, string documentId)
+        public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Posts> posts)
         {
-            var bulkIndexResponse = elasticClient.Bulk(Form1.dBaseConnection, i => i
-            .Index(indexName)
-            .Id(documentId)
-            .Refresh(Elasticsearch.Net.Refresh.True));
+
+            var response = elasticClient.IndexMany(posts);
         }
 
-       /* public static void GetDocument(ElasticClient elasticClient, string indexName, string documentId)
+        public static void SearchDocument(ElasticClient elasticClient, string indexName, List<Posts> posts)
         {
-            var response = elasticClient.Search<Product>(s => s
-            .Index(indexName)
-            .Query(q => q.Term(t => t.Field("_id").Value(documentId))));
-            foreach (var hit in response.Hits)
-            {
-                Console.WriteLine("Id:{0} Name:{1} Description:{2} Category:{3} Price:{4}", hit.Source.id,
-                hit.Source.name, hit.Source.description, hit.Source.category, hit.Source.price);
-            }
 
-        }*/
+            var searchResponse = elasticClient.Search<object>(s => s
+                .AllIndices()
+                .MatchAll(m => m));
+        }
 
-       /* public static void UpdateDocument(ElasticClient elasticClient, string indexName, Product product, string documentId)
-        {
-            var response = elasticClient.Index(product, i => i
-            .Index(indexName)
-            .Id(documentId)
-            .Refresh(Elasticsearch.Net.Refresh.True));
-        }*/
+
 
         /*public static void DeleteDocument(ElasticClient elasticClient, string indexName, string documentId)
         {
@@ -57,25 +44,25 @@ namespace CSVtoElastic
         }*/
 
         //MatchQuery
-       /* public static void GetProductByCategory(ElasticClient elasticClient, string indexName, string category)
-        {
-            var response = elasticClient.Search<Product>(s => s
-            .Index(indexName)
-            .Size(50)
-             .Query(q => q
-            .Match(m => m
-            .Field(f => f.category)
-            .Query(category)
-            )
+        /* public static void GetProductByCategory(ElasticClient elasticClient, string indexName, string category)
+         {
+             var response = elasticClient.Search<Product>(s => s
+             .Index(indexName)
+             .Size(50)
+              .Query(q => q
+             .Match(m => m
+             .Field(f => f.category)
+             .Query(category)
              )
-            );
-            Console.WriteLine("Product Category matches to {0}", category);
-            foreach (var hit in response.Hits)
-            {
-                Console.WriteLine("Id:{0} Name:{1} Description:{2} Category:{3} Price:{4}", hit.Source.id, hit.Source.name, hit.Source.description, hit.Source.category, hit.Source.price);
-            }
+              )
+             );
+             Console.WriteLine("Product Category matches to {0}", category);
+             foreach (var hit in response.Hits)
+             {
+                 Console.WriteLine("Id:{0} Name:{1} Description:{2} Category:{3} Price:{4}", hit.Source.id, hit.Source.name, hit.Source.description, hit.Source.category, hit.Source.price);
+             }
 
-        }*/
+         }*/
 
         //RangeQuery
         /*public static void GetProductByPriceRange(ElasticClient elasticClient, string indexName, int priceLowerLimit, int priceHigherLimit)
@@ -100,32 +87,31 @@ namespace CSVtoElastic
         }*/
 
         //BoolQuery
-       /*public static void GetProductByCategoryPriceRange(ElasticClient elasticClient, string indexName, string category, int priceLowerLimit, int priceHigherLimit)
-        {
-            var response = elasticClient.Search<Product>(s => s
-             .Index(indexName)
-            .Size(50)
-            .Query(q => q
-            .Bool(b => b
-            .Must(m =>
-            m.Match(mt1 => mt1.Field(f1 => f1.category).Query(category)) &&
-            m.Range(ran => ran.Field(f1 => f1.price).GreaterThanOrEquals(priceLowerLimit).LessThan(priceHigherLimit))
-            )
+        /*public static void GetProductByCategoryPriceRange(ElasticClient elasticClient, string indexName, string category, int priceLowerLimit, int priceHigherLimit)
+         {
+             var response = elasticClient.Search<Product>(s => s
+              .Index(indexName)
+             .Size(50)
+             .Query(q => q
+             .Bool(b => b
+             .Must(m =>
+             m.Match(mt1 => mt1.Field(f1 => f1.category).Query(category)) &&
+             m.Range(ran => ran.Field(f1 => f1.price).GreaterThanOrEquals(priceLowerLimit).LessThan(priceHigherLimit))
              )
-            )
-            );
+              )
+             )
+             );
 
-            Console.WriteLine("Product Category:{0} Price range between {1}-{2}", category, priceLowerLimit, priceHigherLimit);
-            foreach (var hit in response.Hits)
-            {
-                Console.WriteLine("Id:{0} Name:{1} Description:{2} Category:{3} Price:{4}", hit.Source.id, hit.Source.name, hit.Source.description, hit.Source.category, hit.Source.price);
-            }
+             Console.WriteLine("Product Category:{0} Price range between {1}-{2}", category, priceLowerLimit, priceHigherLimit);
+             foreach (var hit in response.Hits)
+             {
+                 Console.WriteLine("Id:{0} Name:{1} Description:{2} Category:{3} Price:{4}", hit.Source.id, hit.Source.name, hit.Source.description, hit.Source.category, hit.Source.price);
+             }
 
-        }*/
+         }*/
 
     }
 
 }
-           // ElasticClient client = new ElasticClient("elastic", new ApiKey("6ySZlK9YwKAscofZcP7JYqdU"));
-            //public var nodeInfoResponse = client.RootNodeInfo();
+      
 

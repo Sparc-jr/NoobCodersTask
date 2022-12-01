@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,7 +14,7 @@ namespace CSVtoElastic
     internal class CSVReader
     {
 
-        public static bool readCSVHeader(string fileCSVPath, string fileDBasePath)
+        /*public static bool readCSVHeader(string fileCSVPath, string fileDBasePath)
         {
             string[] fields = null;
             try
@@ -34,44 +35,34 @@ namespace CSVtoElastic
                 return false;
             }
             return true;
-        }
+        }*/
         
         
         
         public static bool readCSVandSaveToDataBase(string fileCSVPath, string fileDBasePath)
         {
-            string[] fields = null;
             try
             {
-
+                ElasticClient elasticSearchClient = ElasticsearchHelper.GetESClient();
                 using (var reader = new StreamReader(fileCSVPath))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
 
+                    var postsTable = new List<Posts>();
                     bool firstRecord = true;
                     csv.Read();
-                    var recordTypes = new List<Type>();
-                    var fieldsToIndex = new List<bool>();
                     while (csv.Read())
                     {
-                        Post nextPost = new Post();
-                        for (int i = 0; i < Post.FieldsCount; i++)
-                        {
-                            var field = csv.GetField(i);
-                            nextPost.Fields.Add(field);
-                            if (firstRecord) recordTypes.Add(field.GetType());   // сделать распознавание типов полей таблицы
-                            if (i<=0) fieldsToIndex.Add(true);
-                            else fieldsToIndex.Add(false);
-                        }
-                        if (firstRecord)
-                        {
-                            Post.typesOfFields = recordTypes;
-                            Post.FieldsToIndex = fieldsToIndex;
-                        }
-                        firstRecord = false;
-                        DBase.AddDataToBase(fileDBasePath, nextPost);
+                        postsTable.Add(new Posts());
+                        postsTable[postsTable.Count - 1].Text = csv.GetField<string>(0);
+                        postsTable[postsTable.Count - 1].CreatedDate = csv.GetField<DateTime>(1);
+                        postsTable[postsTable.Count - 1].Rubrics = csv.GetField<string>(2);
+                        DBase.AddDataToBase(fileDBasePath, postsTable[postsTable.Count - 1]);
+                        
                     }
+                    ElasticsearchHelper.CreateDocument(elasticSearchClient, "posts", postsTable);
                 }
+
             }
             catch (SQLiteException ex)
             {

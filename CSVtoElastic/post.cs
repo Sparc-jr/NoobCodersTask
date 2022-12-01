@@ -3,30 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CSVtoElastic
 {
-    public class Post
+    public class Posts
     {
 
-        //private int _id;
-        private int fieldsCount;
-        private List<int> fieldsToIndex;
-        private List<object> fields;
+        private int _id;
+        private string ?text;
+        private DateTime createdDate;
+        private string ?rubrics;
 
-        public static List<bool> FieldsToIndex;
-        public static int FieldsCount;
-        public static List<string> namesOfFields;
-        public static List<Type> typesOfFields;
+        public string Text { get { return text; } set { text = value; } }
+        public DateTime CreatedDate { get { return createdDate; } set { createdDate = value; } }
+        public string Rubrics { get { return rubrics; } set { rubrics = value; } }
 
         public int PostID { get; private set; }
-
-        public List<object> Fields { get; set; }
-
-        public Post()
+        
+        public Posts()
         {
-            //PostID = Interlocked.Increment(ref _id);
-            Fields = new List<object>();            
+            PostID = Interlocked.Increment(ref _id);           
         }
     }
+
 }

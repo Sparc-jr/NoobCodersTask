@@ -33,35 +33,12 @@ namespace CSVtoElastic
                 commandLine.Append("CREATE TABLE IF NOT EXISTS ");
                 commandLine.Append(Path.GetFileNameWithoutExtension(dBaseName));
                 commandLine.Append(" (");
-                commandLine.Append("id INTEGER PRIMARY KEY AUTOINCREMENT, ");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append(Post.namesOfFields[i]);
-                    /*switch (Post.typesOfFields[i])                                      //определение типа поля из CSV
-                    {
-                        case GetType(String): commandLine.Append(" TEXT"); break;
-                        case int: commandLine.Append(" INTEGER"); break;
-                        case DateTime: commandLine.Append(" DATETIME"); break;
-                        case int: commandLine.Append(" INTEGER"); break;
-                        case double: commandLine.Append(" float"); break;
-                        case decimal: commandLine.Append(" money"); break;
-                        default: commandLine.Append(" TEXT"); break;
-                    }*/
-                    commandLine.Append(" TEXT");
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
-                commandLine.Append(")");
+                commandLine.Append("id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, created_date DATETIME, rubrics TEXT)");
 
                 Form1.sQLCommand.CommandText = commandLine.ToString();
                 Form1.sQLCommand.ExecuteNonQuery();
                 commandLine.Clear();
-                commandLine.Append($"CREATE UNIQUE INDEX record ON {Path.GetFileNameWithoutExtension(dBaseName)}(");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append(Post.namesOfFields[i]);
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
-                commandLine.Append(")");
+                commandLine.Append($"CREATE UNIQUE INDEX record ON {Path.GetFileNameWithoutExtension(dBaseName)}(text, created_date, rubrics)");
                 Form1.sQLCommand.CommandText = commandLine.ToString();
                 Form1.sQLCommand.ExecuteNonQuery();
                 Form1.dBaseConnection.Close();
@@ -93,55 +70,23 @@ namespace CSVtoElastic
            return true;
         }
 
-        public static void AddDataToBase(string dBaseName, Post record)
+        public static void AddDataToBase(string dBaseName, Posts record)
         {
             if (Form1.dBaseConnection.State != ConnectionState.Open)
             {
                 MessageBox.Show("Open connection with database");
                 return;
             }
-                                      var commandLine = new StringBuilder();
+            var commandLine = new StringBuilder();
             try
             {
-                commandLine.Append($"INSERT OR IGNORE INTO {Path.GetFileNameWithoutExtension(dBaseName)} (");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append($"'{Post.namesOfFields[i]}'");
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
-
-                /*commandLine.Append(") values (");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append($"'{record.Fields[i]}'");
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
-                commandLine.Append(")");*/
-
-                commandLine.Append(") Values (");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append($"@{Post.namesOfFields[i]}");
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
-                commandLine.Append(")");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    SQLiteParameter sqlParameter = new SQLiteParameter();
-                    sqlParameter.ParameterName = $"@{Post.namesOfFields[i]}";
-                    sqlParameter.Value = record.Fields[i];
-                    sqlParameter.DbType = DbType.String;    // сделать автоподбираемым в зависимости от типа данных поля
-                    Form1.sQLCommand.Parameters.Add(sqlParameter);
-                }
-
-                
-                //SQLiteTransactionBase transaction;
-                //SQLiteCommand sQLiteCommand = Form1.dBaseConnection.CreateCommand();
-                //transaction = Form1.dBaseConnection.BeginTransaction();
+                commandLine.Append($"INSERT OR IGNORE INTO {Path.GetFileNameWithoutExtension(dBaseName)} ('text', 'created_date', 'rubrics'");
+                commandLine.Append(") Values ('@text', '@created_date', '@rubrics')");
+                Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@text", record.Text));
+                Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@created_date", record.CreatedDate));
+                Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@rubrics", record.Rubrics));
                 Form1.sQLCommand.CommandText = commandLine.ToString();
                 Form1.sQLCommand.CommandType = CommandType.Text;
-                //Form1.sQLCommand = sql_con.CreateCommand();
-                //transaction.Commit();
                 Form1.sQLCommand.ExecuteNonQuery();
                 
             }
