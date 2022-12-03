@@ -1,6 +1,7 @@
 ﻿using Elasticsearch.Net;
 using Nest;
 using System;
+using System.Windows.Forms;
 
 namespace CSVtoElastic
 {
@@ -9,30 +10,56 @@ namespace CSVtoElastic
         static string cloudID = "NoobCodersTask:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvOjQ0MyQ4NjQyZWI4MDg4YTg0ZDUxYjhiMDdiMGE4NDFkMTdiYyRjY2I1NTFlZDY3MWI0MTRhYTc4ZDUyZjIxYThlMGI5Nw==";
         public static ElasticClient GetESClient()
         {
-            ConnectionSettings connectionSettings;
-            ElasticClient elasticClient;
-            CloudConnectionPool connectionPool;
 
-            //Provide your ES cluster addresses
-            //var nodes = new Uri[] { new Uri("http://478a6a642d54.ngrok.io/") };
-            connectionPool = new CloudConnectionPool(cloudID, new ApiKeyAuthenticationCredentials("6ySZlK9YwKAscofZcP7JYqdU"));
-            connectionSettings = new ConnectionSettings(connectionPool);
-            elasticClient = new ElasticClient(connectionSettings);
+            //var connectionPool = new CloudConnectionPool(cloudID, new BasicAuthenticationCredentials("sparcjr@google.com", "_1Q2w3E4r5T_"));//ApiKeyAuthenticationCredentials("6ySZlK9YwKAscofZcP7JYqdU"));
+            //var connectionSettings = new ConnectionSettings(connectionPool);
+
+
+            var credentials = new BasicAuthenticationCredentials("elastic", "ZZwhmkol45v3JtMEZusfiLpe");
+            var connectionPool = new CloudConnectionPool(cloudID, credentials);
+            var connectionSettings = new ConnectionSettings(connectionPool)
+                .EnableApiVersioningHeader()
+                .DefaultIndex("posts")
+                .ThrowExceptions()
+                .EnableDebugMode();
+
+            var elasticClient = new ElasticClient(connectionSettings);
+
+
+            elasticClient.Ping();
+
+
+
             return elasticClient;
         }
 
         public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Posts> posts)
         {
-
+            elasticClient.DeleteIndex(indexName);
+            List<string> postsToIndex = new List<string>();
+            int i = 0;
+            foreach (var post in posts)
+            {
+                postsToIndex.Add(post.Text);
+                i++;
+            }
             var response = elasticClient.IndexMany(posts);
+            MessageBox.Show(response.IsValid?"Индекс создан":response.ToString());
         }
 
-        public static void SearchDocument(ElasticClient elasticClient, string indexName, List<Posts> posts)
+        public static List<Posts> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)
         {
-
-            var searchResponse = elasticClient.Search<object>(s => s
-                .AllIndices()
-                .MatchAll(m => m));
+            var searchResponse = elasticClient.Search<Posts>(s => s
+                .Size(20)
+                .Index(indexName)
+                .Query(q => q
+                    .Match(m => m
+                    .Field(f => f.Text)
+                    .Query(stringToSearch)
+                    )
+                )
+            );
+            return searchResponse.Documents.ToList();
         }
 
 

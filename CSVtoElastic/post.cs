@@ -10,7 +10,8 @@ namespace CSVtoElastic
     public class Posts
     {
 
-        private int _id;
+        static int nextID;
+        private int postID;
         private string ?text;
         private DateTime createdDate;
         private string ?rubrics;
@@ -23,7 +24,7 @@ namespace CSVtoElastic
         
         public Posts()
         {
-            PostID = Interlocked.Increment(ref _id);           
+            PostID = Interlocked.Increment(ref nextID);           
         }
     }
 

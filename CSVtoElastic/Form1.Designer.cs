@@ -41,6 +41,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
+            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -78,7 +80,9 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
-            this.toolStripStatusLabel2});
+            this.toolStripStatusLabel2,
+            this.toolStripStatusLabel3,
+            this.toolStripStatusLabel4});
             this.statusStrip1.Location = new System.Drawing.Point(0, 1230);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1800, 32);
@@ -140,6 +144,7 @@
             this.button3.TabIndex = 7;
             this.button3.Text = "Искать";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // label2
             // 
@@ -149,6 +154,19 @@
             this.label2.Size = new System.Drawing.Size(372, 25);
             this.label2.TabIndex = 8;
             this.label2.Text = "Отметьте столбцы для индексации и поиска";
+            // 
+            // toolStripStatusLabel3
+            // 
+            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(55, 25);
+            this.toolStripStatusLabel3.Text = "Index";
+            this.toolStripStatusLabel3.Click += new System.EventHandler(this.toolStripStatusLabel3_Click);
+            // 
+            // toolStripStatusLabel4
+            // 
+            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(179, 25);
+            this.toolStripStatusLabel4.Text = "toolStripStatusLabel4";
             // 
             // Form1
             // 
@@ -181,7 +199,7 @@
 
         private Button button1;
         private Button button2;
-        private TextBox textBox1;
+        public TextBox textBox1;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
         private ToolStripStatusLabel toolStripStatusLabel2;
@@ -192,5 +210,7 @@
         private Label label1;
         private Button button3;
         private Label label2;
+        private ToolStripStatusLabel toolStripStatusLabel3;
+        public ToolStripStatusLabel toolStripStatusLabel4;
     }
 }

@@ -10,6 +10,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Elasticsearch.Net;
+using Nest;
 
 namespace CSVtoElastic
 {
@@ -19,6 +21,7 @@ namespace CSVtoElastic
         private String dBaseFileName;
         public static SQLiteConnection dBaseConnection;
         public static SQLiteCommand sQLCommand;
+        public static ElasticClient elasticSearchClient = ElasticsearchHelper.GetESClient();
 
         public Form1()
         {
@@ -52,7 +55,8 @@ namespace CSVtoElastic
             sQLCommand = new SQLiteCommand();
             dBaseFileName = "sampleDB.db";
             toolStripStatusLabel2.Text = "Disconnected";
-            ElasticsearchHelper.GetESClient();
+            toolStripStatusLabel4.Text = "Not created";
+            //ElasticsearchHelper.GetESClient();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -63,12 +67,29 @@ namespace CSVtoElastic
             dBaseConnection.Close();
             dBaseFileName = openFileDialog1.FileName;
             toolStripStatusLabel2.Text = DBase.ConnectDBASE(dBaseFileName) ? "Connected" : "Disconnected";
+            dataGridView1.DataSource = dBaseFileName;
+            SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(dBaseFileName)}", dBaseConnection);
+            DataSet dataSet = new DataSet();
+            sQLiteDataAdapter.Fill(dataSet);
+            dataGridView1.DataSource = dataSet.Tables[0];
             MessageBox.Show("Файл открыт");
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             dBaseConnection.Close();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var searchResult = ElasticsearchHelper.SearchDocument(elasticSearchClient, "posts", textBox1.Text);
+            dataGridView2.DataSource = searchResult;
+
+        }
+
+        private void toolStripStatusLabel3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

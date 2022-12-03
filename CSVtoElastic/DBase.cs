@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CSVtoElastic
 {
@@ -72,6 +74,7 @@ namespace CSVtoElastic
 
         public static void AddDataToBase(string dBaseName, Posts record)
         {
+            var namesOfFields = new { "text", "created_date", "rubrics" };
             if (Form1.dBaseConnection.State != ConnectionState.Open)
             {
                 MessageBox.Show("Open connection with database");
@@ -82,9 +85,20 @@ namespace CSVtoElastic
             {
                 commandLine.Append($"INSERT OR IGNORE INTO {Path.GetFileNameWithoutExtension(dBaseName)} ('text', 'created_date', 'rubrics'");
                 commandLine.Append(") Values ('@text', '@created_date', '@rubrics')");
-                Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@text", record.Text));
-                Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@created_date", record.CreatedDate));
-                Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@rubrics", record.Rubrics));
+
+                for (int i = 0; i < 3; i++)
+                {
+                    SQLiteParameter sqlParameter = new SQLiteParameter();
+                    sqlParameter.ParameterName = $"@{namesOfFields[i]}";
+                    sqlParameter.Value = record.Fields[i];
+                    sqlParameter.DbType = DbType.String;    // сделать автоподбираемым в зависимости от типа данных поля
+                    Form1.sQLCommand.Parameters.Add(sqlParameter);
+                }
+
+
+                //Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@text", record.Text));
+                //Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@created_date", record.CreatedDate));
+                //Form1.sQLCommand.Parameters.Add(new SQLiteParameter("@rubrics", record.Rubrics));
                 Form1.sQLCommand.CommandText = commandLine.ToString();
                 Form1.sQLCommand.CommandType = CommandType.Text;
                 Form1.sQLCommand.ExecuteNonQuery();

@@ -14,6 +14,7 @@ namespace CSVtoElastic
     internal class CSVReader
     {
 
+        public static ElasticClient elasticSearchClient;
         /*public static bool readCSVHeader(string fileCSVPath, string fileDBasePath)
         {
             string[] fields = null;
@@ -36,14 +37,13 @@ namespace CSVtoElastic
             }
             return true;
         }*/
-        
-        
-        
+
+
+
         public static bool readCSVandSaveToDataBase(string fileCSVPath, string fileDBasePath)
         {
             try
             {
-                ElasticClient elasticSearchClient = ElasticsearchHelper.GetESClient();
                 using (var reader = new StreamReader(fileCSVPath))
                 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
@@ -60,7 +60,7 @@ namespace CSVtoElastic
                         DBase.AddDataToBase(fileDBasePath, postsTable[postsTable.Count - 1]);
                         
                     }
-                    ElasticsearchHelper.CreateDocument(elasticSearchClient, "posts", postsTable);
+                    ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
                 }
 
             }
