@@ -26,44 +26,34 @@ namespace CSVtoElastic
         public static void CreateDocument(ElasticClient elasticClient, string indexName, List<Post> posts)
         {
             elasticClient.DeleteIndex(indexName);
-            List<string> postsToIndex = new List<string>();
-            int i = 0;
+            List<Record> postsToIndex = new List<Record>();
+            int i = 1;
             foreach (var post in posts)
             {
-                postsToIndex.Add(post.Fields[1].ToString());
+                postsToIndex.Add(new Record(i, post.Fields[0].ToString()));
                 i++;
             }
-            var response = elasticClient.IndexMany(posts);
+            var response = elasticClient.IndexMany(postsToIndex);
             MessageBox.Show(response.IsValid ? "Индекс создан" : response.ToString());
         }
 
-        public static List<Post> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)
+        public static List<Record> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)
         {
-            var searchResponse = elasticClient.Search<Post>(s => s
+            var searchResponse = elasticClient.Search<Record>(s => s
                 .Size(20)
                 .Index(indexName)
-                .Query(q => q.
-                    .Term(t => t
-                    .d(f => f.Fields[1])
-                    .Query(stringToSearch)
+                .Query(q => q
+                    .Term(t => t.Text, stringToSearch)
                     )
-                )
-            );
-
-
-            /*var request = new SearchRequest("posts")
-            {
-                From = 0,
-                Size = 20,
-                Query = new TermQuery("user") { Value = stringToSearch }
-            };
-
-            var searchResponse = elasticClient.Search<Post>(request);*/
-
-
-
+                );
             return searchResponse.Documents.ToList();
         }
+
+        public static void DeleteDocument(ElasticClient elasticClient, string indexName, Record post)
+        {
+            var searchResponse = elasticClient.Delete<Record>(post.Id);
+        }
+
 
     }
 

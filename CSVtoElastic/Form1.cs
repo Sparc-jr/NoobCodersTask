@@ -1,16 +1,6 @@
-using System.Formats.Asn1;
-using System.IO;
-using System.Globalization;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using Nest;
 using System.Data;
 using System.Data.SQLite;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Nest;
 
 namespace CSVtoElastic
 {
@@ -21,6 +11,8 @@ namespace CSVtoElastic
         public static SQLiteConnection dBaseConnection;
         public static SQLiteCommand sQLCommand;
         public static ElasticClient elasticSearchClient = ElasticsearchHelper.GetESClient();
+        List<CheckBox> checkBoxColumnToIndex = new List<CheckBox>();
+
 
         public Form1()
         {
@@ -38,14 +30,17 @@ namespace CSVtoElastic
             CSVReader.readCSVHeader(CSVFileName, dBaseFileName);
             toolStripStatusLabel2.Text = DBase.CreateDBASE(dBaseFileName) ? "Connected" : "Disconnected";
             CSVReader.readCSVandSaveToDataBase(CSVFileName, dBaseFileName);
-            dataGridView1.DataSource = dBaseFileName;
+            RefreshDataGridView();
+            MessageBox.Show("Файл открыт");
+        }
+
+        private void RefreshDataGridView()
+        {
             SQLiteDataAdapter sQLiteDataAdapter = new SQLiteDataAdapter($"SELECT * FROM {Path.GetFileNameWithoutExtension(dBaseFileName)}", dBaseConnection);
             DataSet dataSet = new DataSet();
             sQLiteDataAdapter.Fill(dataSet);
-
             dataGridView1.DataSource = dataSet.Tables[0];
-            DrawCheckBoxes();
-            MessageBox.Show("Файл открыт");
+            DrawCheckBoxesInColumns();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -73,17 +68,19 @@ namespace CSVtoElastic
             dBaseConnection.Close();
         }
 
-        private void DrawCheckBoxes()
-        {
-            List<CheckBox> checkBoxColumnToIndex = new List<CheckBox>();
+        private void DrawCheckBoxesInColumns()       // добавляем чекбоксы в заголовки столбцов для выбора что индексировать
+        {                                            // на данный момент индексация осуществляется по умолчанию по первому столбцу           
+            foreach (CheckBox chkBox in checkBoxColumnToIndex)
+            {
+                chkBox.Dispose();
+            }
+            checkBoxColumnToIndex.Clear();
             for (int i = 0; i < Post.FieldsCount; i++)
             {
                 var ckBox = new CheckBox();
                 checkBoxColumnToIndex.Add(ckBox);
-                //Get the column header cell bounds
                 Rectangle rect = this.dataGridView1.GetCellDisplayRectangle(i+1, -1, true);
                 checkBoxColumnToIndex[i].Size = new Size(18, 18);
-                //Change the location of the CheckBox to make it stay on the header
                 checkBoxColumnToIndex[i].Top = rect.Top+1;
                 checkBoxColumnToIndex[i].Left = rect.Left + rect.Width - checkBoxColumnToIndex[i].Width-1;
                 checkBoxColumnToIndex[i].CheckedChanged += (sender, eventArgs) => {
@@ -92,6 +89,16 @@ namespace CSVtoElastic
                 };
                   this.dataGridView1.Controls.Add(checkBoxColumnToIndex[i]);
             }
+        }
+        private void dataGridView1_Scroll(object sender, ScrollEventArgs e)
+        {
+            for (int i = 0; i < Post.FieldsCount; i++)
+            {
+                Rectangle rect = this.dataGridView1.GetCellDisplayRectangle(i + 1, -1, true);
+                checkBoxColumnToIndex[i].Size = new Size(18, 18);
+                checkBoxColumnToIndex[i].Top = rect.Top + 1;
+                checkBoxColumnToIndex[i].Left = rect.Left + rect.Width - checkBoxColumnToIndex[i].Width - 1;
+            };
         }
         private void ckBox_CheckedChanged(int checkBoxIndex)
         {
@@ -102,6 +109,43 @@ namespace CSVtoElastic
         {
             var searchResult = ElasticsearchHelper.SearchDocument(elasticSearchClient, "posts", textBox1.Text);
             dataGridView2.DataSource = searchResult;
+            dataGridView2.MultiSelect = true;
+            dataGridView2.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        }
+
+        private void dataGridView2_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            DataGridView dgv = (DataGridView)sender;
+
+            int rowIndex = dgv.HitTest(e.X, e.Y).RowIndex;
+            if (rowIndex == -1) { return; }
+            dgv.Rows[rowIndex].Selected = !dgv.Rows[rowIndex].Selected;
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            dataGridView1.Width = Form1.ActiveForm.Width - 48;
+            dataGridView2.Width = Form1.ActiveForm.Width - 48;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Form1.dBaseConnection.Open();
+            Form1.sQLCommand.Connection = Form1.dBaseConnection;
+            var selectedRows = dataGridView2.SelectedRows
+                .OfType<DataGridViewRow>()
+                .ToArray();
+
+            foreach (var row in selectedRows)
+            {
+                ElasticsearchHelper.DeleteDocument(elasticSearchClient, "posts", new Record(int.Parse(row.Cells[0].Value.ToString()), row.Cells[1].Value.ToString()));
+                sQLCommand.CommandText = $"DELETE FROM {Path.GetFileNameWithoutExtension(dBaseFileName)} WHERE id like {int.Parse(row.Cells[0].Value.ToString())}";
+                Form1.sQLCommand.ExecuteNonQuery();
+            }
+            RefreshDataGridView();
+            dataGridView2.ClearSelection();
+            button3_Click(sender, e);
+            Form1.dBaseConnection.Close();
         }
     }
 }
