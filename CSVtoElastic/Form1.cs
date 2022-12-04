@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nest;
 
 namespace CSVtoElastic
 {
@@ -19,6 +20,7 @@ namespace CSVtoElastic
         private String dBaseFileName;
         public static SQLiteConnection dBaseConnection;
         public static SQLiteCommand sQLCommand;
+        public static ElasticClient elasticSearchClient = ElasticsearchHelper.GetESClient();
 
         public Form1()
         {
@@ -94,6 +96,12 @@ namespace CSVtoElastic
         private void ckBox_CheckedChanged(int checkBoxIndex)
         {
             Post.FieldsToIndex[checkBoxIndex] = !Post.FieldsToIndex[checkBoxIndex];
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var searchResult = ElasticsearchHelper.SearchDocument(elasticSearchClient, "posts", textBox1.Text);
+            dataGridView2.DataSource = searchResult;
         }
     }
 }

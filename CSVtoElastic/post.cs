@@ -19,7 +19,7 @@ namespace CSVtoElastic
         public static List<string> namesOfFields;
         public static List<Type> typesOfFields;
 
-        public int PostID { get; private set; }
+        //public int PostID { get; private set; }
 
         public List<object> Fields { get; set; }
 
