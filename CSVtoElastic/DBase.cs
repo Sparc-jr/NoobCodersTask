@@ -37,7 +37,7 @@ namespace CSVtoElastic
                 for (int i = 0; i < Post.FieldsCount; i++)
                 {
                     commandLine.Append(Post.namesOfFields[i]);
-                    /*switch (Post.typesOfFields[i])                                      //определение типа поля из CSV
+                    /*switch (Post.typesOfFields[i])                                      // TO DO: создание полей в соответствии с опозныннми при парсинге типами
                     {
                         case GetType(String): commandLine.Append(" TEXT"); break;
                         case int: commandLine.Append(" INTEGER"); break;
@@ -110,13 +110,6 @@ namespace CSVtoElastic
                     if (i < Post.FieldsCount - 1) commandLine.Append(", ");
                 }
 
-                /*commandLine.Append(") values (");
-                for (int i = 0; i < Post.FieldsCount; i++)
-                {
-                    commandLine.Append($"'{record.Fields[i]}'");
-                    if (i < Post.FieldsCount - 1) commandLine.Append(", ");
-                }
-                commandLine.Append(")");*/
 
                 commandLine.Append(") Values (");
                 for (int i = 0; i < Post.FieldsCount; i++)
@@ -130,18 +123,12 @@ namespace CSVtoElastic
                     SQLiteParameter sqlParameter = new SQLiteParameter();
                     sqlParameter.ParameterName = $"@{Post.namesOfFields[i]}";
                     sqlParameter.Value = record.Fields[i];
-                    sqlParameter.DbType = DbType.String;    // сделать автоподбираемым в зависимости от типа данных поля
+                    sqlParameter.DbType = DbType.String;    //  TO DO: назначать в зависимости от типа данных поля
                     Form1.sQLCommand.Parameters.Add(sqlParameter);
                 }
 
-                
-                //SQLiteTransactionBase transaction;
-                //SQLiteCommand sQLiteCommand = Form1.dBaseConnection.CreateCommand();
-                //transaction = Form1.dBaseConnection.BeginTransaction();
                 Form1.sQLCommand.CommandText = commandLine.ToString();
                 Form1.sQLCommand.CommandType = CommandType.Text;
-                //Form1.sQLCommand = sql_con.CreateCommand();
-                //transaction.Commit();
                 Form1.sQLCommand.ExecuteNonQuery();
                 
             }

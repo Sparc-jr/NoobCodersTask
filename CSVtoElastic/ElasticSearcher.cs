@@ -1,4 +1,5 @@
-﻿using Elasticsearch.Net;
+﻿using Elastic.Apm.Api;
+using Elasticsearch.Net;
 using Microsoft.Extensions.Hosting;
 using Nest;
 using System;
@@ -51,10 +52,9 @@ namespace CSVtoElastic
 
         public static void DeleteDocument(ElasticClient elasticClient, string indexName, Record post)
         {
-            var searchResponse = elasticClient.Delete<Record>(post.Id);
+            var deleteResponse = elasticClient.Delete<Record>(post.Id);
+            MessageBox.Show(deleteResponse.IsValid ? $"Запись №{post.Id} успешно удалена" : deleteResponse.ToString());
         }
-
-
     }
 
 }

@@ -61,7 +61,7 @@ namespace CSVtoElastic
                         {
                             var field = csv.GetField(i);
                             nextPost.Fields.Add(field);
-                            if (firstRecord) recordTypes.Add(field.GetType());   // сделать распознавание типов полей таблицы
+                            if (firstRecord) recordTypes.Add(field.GetType());   // TO DO: распознавание типов полей таблицы
                             if (i<=0) fieldsToIndex.Add(true);
                             else fieldsToIndex.Add(false);
                         }

@@ -60,7 +60,10 @@ namespace CSVtoElastic
             dBaseConnection.Close();
             dBaseFileName = openFileDialog1.FileName;
             toolStripStatusLabel2.Text = DBase.ConnectDBASE(dBaseFileName) ? "Connected" : "Disconnected";
+            RefreshDataGridView();
             MessageBox.Show("Файл открыт");
+
+            //ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -130,6 +133,7 @@ namespace CSVtoElastic
 
         private void button4_Click(object sender, EventArgs e)
         {
+            dBaseConnection.Close();
             Form1.dBaseConnection.Open();
             Form1.sQLCommand.Connection = Form1.dBaseConnection;
             var selectedRows = dataGridView2.SelectedRows
