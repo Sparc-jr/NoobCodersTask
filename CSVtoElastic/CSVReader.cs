@@ -53,7 +53,7 @@ namespace CSVtoElastic
                     csv.Read();
                     var recordTypes = new List<Type>();
                     var fieldsToIndex = new List<bool>();
-                    var postsTable = new List<Post>();
+                    //var postsTable = new List<Post>();
                     while (csv.Read())
                     {
                         Post nextPost = new Post();
@@ -72,9 +72,9 @@ namespace CSVtoElastic
                         }
                         firstRecord = false;
                         DBase.AddDataToBase(fileDBasePath, nextPost);
-                        postsTable.Add(nextPost);
+                        //postsTable.Add(nextPost);
                     }
-                    ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
+                    //ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
                 }
             }
             catch (SQLiteException ex)

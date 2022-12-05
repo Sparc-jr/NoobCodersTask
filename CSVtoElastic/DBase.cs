@@ -20,6 +20,17 @@ namespace CSVtoElastic
                 SQLiteConnection.CreateFile(dBaseName);
                 CreateNewDBASE(dBaseName);
             }
+            else
+            {
+                DialogResult dialogResult = MessageBox.Show("ОК - добавить записи в существующую базу\n Отмена - создать базу заново", "База уже существует", MessageBoxButtons.OKCancel);
+                if (dialogResult == DialogResult.Cancel)
+                {
+                    Form1.dBaseConnection.Close();
+                    File.Delete(dBaseName);
+                    SQLiteConnection.CreateFile(dBaseName);
+                    CreateNewDBASE(dBaseName);
+                }
+            }
             return ConnectDBASE(dBaseName);
         }
         public static bool CreateNewDBASE(string dBaseName)

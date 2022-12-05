@@ -28,14 +28,13 @@ namespace CSVtoElastic
         {
             elasticClient.DeleteIndex(indexName);
             List<Record> postsToIndex = new List<Record>();
-            int i = 1;
-            foreach (var post in posts)
+            //int i = 1;
+            for(int i=0;i<posts.Count;i++)// each (var post in posts)
             {
-                postsToIndex.Add(new Record(i, post.Fields[0].ToString()));
-                i++;
+                postsToIndex.Add(new Record((long)posts[i].Fields[0], posts[i].Fields[1].ToString()));
             }
             var response = elasticClient.IndexMany(postsToIndex);
-            MessageBox.Show(response.IsValid ? "Индекс создан" : response.ToString());
+            MessageBox.Show(response.IsValid ? "Данные успешно импортированы. Индекс создан" : response.ToString());
         }
 
         public static List<Record> SearchDocument(ElasticClient elasticClient, string indexName, string stringToSearch)

@@ -27,11 +27,28 @@ namespace CSVtoElastic
                 return;
             CSVFileName = openFileDialog1.FileName;
             dBaseFileName = $"{Path.GetDirectoryName(CSVFileName)}\\{Path.GetFileNameWithoutExtension(CSVFileName)}.db";
+
             CSVReader.readCSVHeader(CSVFileName, dBaseFileName);
             toolStripStatusLabel2.Text = DBase.CreateDBASE(dBaseFileName) ? "Connected" : "Disconnected";
             CSVReader.readCSVandSaveToDataBase(CSVFileName, dBaseFileName);
             RefreshDataGridView();
-            MessageBox.Show("Файл открыт");
+            List<Post> postsTable = PrepareDataForIndexing();
+            ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
+        }
+
+        private List<Post> PrepareDataForIndexing()
+        {
+            var postsTable = new List<Post>();
+            for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
+            {
+                postsTable.Add(new Post());
+                for (int j = 0; j < dataGridView1.Rows[i].Cells.Count - 1; j++)
+                {
+                    postsTable[i].Fields.Add(dataGridView1.Rows[i].Cells[j].Value);
+                }
+            }
+
+            return postsTable;
         }
 
         private void RefreshDataGridView()
@@ -62,8 +79,8 @@ namespace CSVtoElastic
             toolStripStatusLabel2.Text = DBase.ConnectDBASE(dBaseFileName) ? "Connected" : "Disconnected";
             RefreshDataGridView();
             MessageBox.Show("Файл открыт");
-
-            //ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
+            List<Post> postsTable = PrepareDataForIndexing();
+            ElasticsearchHelper.CreateDocument(Form1.elasticSearchClient, "posts", postsTable);
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)

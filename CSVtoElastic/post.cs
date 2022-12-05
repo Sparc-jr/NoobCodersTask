@@ -8,8 +8,8 @@ namespace CSVtoElastic
 {
     public class Post
     {
-        private int fieldsCount;
-        private List<int> fieldsToIndex;
+        private static int fieldsCount;
+        private static List<int> fieldsToIndex;
         private List<object> fields;
 
         public static List<bool> FieldsToIndex;
@@ -26,9 +26,9 @@ namespace CSVtoElastic
 
     public class Record
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Text { get; set; }
-        public Record(int n, string text)
+        public Record(long n, string text)
         {
             Id = n;
             Text = text;
